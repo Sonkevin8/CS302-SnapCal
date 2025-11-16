@@ -52,7 +52,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 @st.cache_resource
 def load_model():
     model = ResNetRGB().to(device)
-    checkpoint_path = "/checkpoints/best_resnet50_rgb_retrained.pt"
+    checkpoint_path = "/checkpoints/best_resnet50_rgb.pt"
     if os.path.exists(checkpoint_path):
         checkpoint = torch.load(checkpoint_path, map_location=device)
         model.load_state_dict(checkpoint["model_state_dict"])
