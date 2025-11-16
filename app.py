@@ -211,7 +211,7 @@ def load_multi_input_model(filename):
         st.error(f"Could not load model state dictionary: {e}")
         return None
 
-model_state_dict_path = "/content/drive/MyDrive/nutrition_model_checkpoints/best_multi_input_model.pt"
+model_state_dict_path = "checkpoints/best_resnet50_rgb_retrained"
 
 model = load_multi_input_model(model_state_dict_path)
 
