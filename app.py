@@ -4,307 +4,220 @@ import torch.nn as nn
 import torchvision.transforms as transforms
 from PIL import Image
 import io
-import pickle
 import numpy as np
 import os
-from torchvision.transforms import Grayscale
-import cv2 # Keep cv2 import for image processing
-# Removed matplotlib.pyplot import
+import torchvision.models as models
 
-# Snapchat-inspired Styling
-st.set_page_config(page_title="SnapCal", layout="centered", initial_sidebar_state="auto")
-
-st.markdown('''
-    <style>
-    .stApp > header, .stApp > div > div:first-child {
-        background-color: #FFFC00;
-    }
-    .stApp > div > div {
-        background-color: #FBBC04;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    .stButton>button {
-        background-color: #00FF00 !important;
-        color: white !important;
-        font-size: 18px !important;
-        padding: 12px 28px !important;
-        border-radius: 8px !important;
-        border: none !important;
-        cursor: pointer !important;
-        margin-top: 15px;
-        margin-bottom: 15px;
-    }
-    .stButton>button:hover {
-        background-color: #00E600 !important;
-    }
-    h1 {
-        color: #1e3a8a;
-        text-align: center;
-        margin-bottom: 20px;
-        font-size: 900px;
-        font-weight: bold;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-        letter-spacing: 2px;
-        font-italic: italic;
-    }
-     h2, h3, h4, h5, h6 {
-        color: #1e3a8a;
-        margin-top: 20px;
-        margin-bottom: 10px;
-    }
-    .stMarkdown, .stText, .stException {
-        color: #000000 !important;
-        font-size: 16px;
-        line-height: 1.6;
-    }
-    .stFileUploader label, .stCameraInput label {
-        font-size: 18px;
-        color: #1e3a8a;
-        margin-bottom: 10px;
-        display: block;
-    }
-    .stFileUploader div[data-testid="stFileUploaderDropzone"], .stCameraInput div[data-testid="stCameraInputButton"] {
-        border: 2px dashed #1e3a8a;
-        padding: 20px;
-        border-radius: 8px;
-        background-color: #ffffcc;
-        text-align: center;
-    }
-     .stFileUploader div[data-testid="stFileUploaderDropzone"] p, .stCameraInput div[data-testid="stCameraInputButton"] p {
-        color: #1e3a8a;
-        font-size: 16px;
-    }
-    .stCaption {
-        text-align: center;
-        font-style: italic;
-        color: #555555;
-        margin-top: 5px;
-    }
-    hr {
-        border-top: 2px solid #1e3a8a;
-        margin-top: 25px;
-        margin-bottom: 25px;
-    }
-    </style>
-    ''', unsafe_allow_html=True)
-
-if 'show_camera' not in st.session_state:
-    st.session_state.show_camera = False
-
-class MultiInputSnapCalCNN(nn.Module):
+# ============================================
+# Model Definition (ResNetRGB)
+# ============================================
+class ResNetRGB(nn.Module):
     def __init__(self):
-        super(MultiInputSnapCalCNN, self).__init__()
-
-        self.features_rgb = nn.Sequential(
-            nn.Conv2d(3, 32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
+        super(ResNetRGB, self).__init__()
+        # Load pre-trained ResNet50
+        base = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V1)
+        # Use all layers except the last two (average pooling and fully connected)
+        self.backbone = nn.Sequential(*list(base.children())[:-2])
+        # Global Average Pooling
+        self.pool = nn.AdaptiveAvgPool2d((1, 1))
+        # Regression head
+        self.fc = nn.Sequential(
+            nn.Linear(2048, 512),
             nn.ReLU(),
-            nn.MaxPool2d(2),
-
-            nn.Conv2d(32, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
+            nn.Dropout(0.3),
+            nn.Linear(512, 128),
             nn.ReLU(),
-            nn.MaxPool2d(2),
+            nn.Linear(128, 1)
         )
 
-        self.features_mono = nn.Sequential(
-            nn.Conv2d(1, 16, kernel_size=3, padding=1),
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
+    def forward(self, x):
+        feat = self.pool(self.backbone(x)).flatten(1)
+        return self.fc(feat)
 
-            nn.Conv2d(16, 32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-        )
-
-        self.features_rgb_cont = nn.Sequential(
-            nn.Conv2d(64, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-
-            nn.Conv2d(128, 256, kernel_size=3, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-        )
-
-        self.features_heat_cont = nn.Sequential(
-            nn.Conv2d(32, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-
-            nn.Conv2d(64, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-        )
-
-        self.features_depth_cont = nn.Sequential(
-            nn.Conv2d(32, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-
-            nn.Conv2d(64, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-        )
-
-        total_flattened_features = 256 + 128 + 128
-        self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(total_flattened_features, 256),
-            nn.ReLU(),
-            nn.Dropout(0.4),
-            nn.Linear(256, 64),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(64, 1)
-        )
-        self.gap = nn.AdaptiveAvgPool2d((1, 1))
-
-    def forward(self, x_rgb, x_heat, x_depth):
-        features_rgb = self.features_rgb(x_rgb)
-        features_rgb = self.features_rgb_cont(features_rgb)
-
-        features_heat = self.features_mono(x_heat)
-        features_heat = self.features_heat_cont(features_heat)
-
-        features_depth = self.features_mono(x_depth)
-        features_depth = self.features_depth_cont(features_depth)
-
-        features_rgb = self.gap(features_rgb)
-        features_heat = self.gap(features_heat)
-        features_depth = self.gap(features_depth)
-
-        features_rgb = features_rgb.view(features_rgb.size(0), -1)
-        features_heat = features_heat.view(features_heat.size(0), -1)
-        features_depth = features_depth.view(features_depth.size(0), -1)
-
-        combined_features = torch.cat((features_rgb, features_heat, features_depth), dim=1)
-        output = self.classifier(combined_features)
-        return output
-
-@st.cache_resource
-def load_multi_input_model(filename):
-    st.info(f"Attempting to load model state dictionary from {filename}")
-    try:
-        model = MultiInputSnapCalCNN()
-        checkpoint = torch.load(filename, map_location=torch.device('cpu'))
-        model.load_state_dict(checkpoint['model_state_dict'])
-        st.success("MultiInputSnapCalCNN model state dictionary loaded successfully!")
-        return model
-    except FileNotFoundError:
-        st.error(f"Model file not found at {filename}")
-        return None
-    except KeyError:
-        st.error(f"Checkpoint file {filename} does not contain 'model_state_dict'.")
-        return None
-    except Exception as e:
-        st.error(f"Could not load model state dictionary: {e}")
-        return None
-
-model_state_dict_path = "checkpoints/best_resnet50_rgb_retrained"
-
-model = load_multi_input_model(model_state_dict_path)
-
-if model is None:
-     st.stop()
-
-transform_rgb = transforms.Compose([
-    transforms.Resize((448, 448)),
+# ============================================
+# Transforms Definition
+# ============================================
+val_test_transform_rgb = transforms.Compose([
+    transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406],
                          std=[0.229, 0.224, 0.225])
 ])
 
-mono_transform = transforms.Compose([
-    transforms.Resize((448, 448)),
-    transforms.ToTensor(),
-])
+# ============================================
+# Load Model Checkpoint
+# ============================================
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-grayscale_transform = transforms.Grayscale(num_output_channels=1)
+@st.cache_resource
+def load_model():
+    model = ResNetRGB().to(device)
+    checkpoint_path = "/checkpoints/best_resnet50_rgb_retrained.pt"
+    if os.path.exists(checkpoint_path):
+        checkpoint = torch.load(checkpoint_path, map_location=device)
+        model.load_state_dict(checkpoint["model_state_dict"])
+        model.eval() # Set model to evaluation mode
+        st.success("ResNetRGB model loaded successfully!")
+    else:
+        st.error(f"Error: Model checkpoint not found at {checkpoint_path}")
+    return model
 
-def generate_mono_placeholders(pil_image):
-    # Removed matplotlib import from here
-    import cv2 # Moved import inside function if needed, but it's already at the top of app_py_content
-
-    img_np = np.array(pil_image.convert('L'))
-
-    # Generate "Heat" approximation using OpenCV colormap
-    # Apply a pseudocolor map (e.g., COLORMAP_HOT)
-    heatmap_colored_np = cv2.applyColorMap(img_np, cv2.COLORMAP_HOT)
-    # Convert the 3-channel colored numpy array back to a 1-channel grayscale PIL image
-    heat_pil = Image.fromarray(heatmap_colored_np).convert('L')
-
-    # Generate "Depth" approximation using Gradient Magnitude (already uses cv2)
-    grad_x = cv2.Sobel(img_np, cv2.CV_64F, 1, 0, ksize=5)
-    grad_y = cv2.Sobel(img_np, cv2.CV_64F, 0, 1, ksize=5)
-    gradient_magnitude = cv2.magnitude(grad_x, grad_y)
-    gradient_magnitude = cv2.normalize(gradient_magnitude, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
-    depth_np = 255 - gradient_magnitude
-    depth_pil = Image.fromarray(depth_np).convert('L')
-
-    return heat_pil, depth_pil
+# Load the model at app startup
+model = load_model()
 
 
-st.title('SnapCal')
+# ---- Stylish Hero Section with Background ----
 
-st.write("Upload your meal!🍴 or take a picture to estimate its calories.")
+background_img_url = "https://images.pexels.com/photos/70497/pexels-photo-70497.jpeg?auto=compress&fit=crop&w=1350&q=80"
+icon_url = "https://cdn-icons-png.flaticon.com/512/1046/1046857.png" # food plate icon
 
-if st.button("Camera"):
+st.set_page_config(page_title="SnapCal", layout="centered", initial_sidebar_state="auto")
+
+st.markdown(
+     f"""
+    <style>
+    body {{
+        background: linear-gradient(120deg, #FCFF6C 0%, #f3f4f9 100%);
+        font-family: 'Segoe UI', 'Roboto', sans-serif;
+    }}
+    .stApp {{
+        background-image: url('{background_img_url}');
+        background-size: cover;
+        background-attachment: fixed;
+    }}
+    .hero-card {{
+        background: rgba(255,255,255,0.80);
+        border-radius: 32px;
+        padding: 2.5rem 2rem 2.5rem 2rem;
+        margin: 2rem auto 2rem auto;
+        box-shadow: 0 7px 32px 4px rgba(16,32,45,0.10);
+        max-width: 600px;
+        position: relative;
+        backdrop-filter: blur(2.5px);
+    }}
+    .snapcal-title {{
+        font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+        font-weight: 900;
+        font-size: 3rem;
+        color: #1e3a8a;
+        margin-bottom: .25rem;
+        letter-spacing: 2.5px;
+        text-shadow: 0 2px 16px #fefbde, 0 1px 4px #ffe5b1;
+        text-align: center;
+    }}
+    .app-description {{
+        color: #3d4f77;
+        font-size: 1.13rem;
+        text-align: center;
+        margin-bottom: .5rem;
+        line-height: 1.7;
+    }}
+    .snapcal-divider {{
+        margin: 2.5rem 0 2rem 0; height:2px; background:#ffdc51; border-radius:20px;
+        border:none;
+    }}
+    .title-icon {{
+        width:55px; display:block; margin: 0 auto 6px auto; filter: drop-shadow(0 2px 6px #fff9c25e);
+    }}
+    .stButton>button {{
+        background: linear-gradient(90deg,#ffdc51,#f8ffae 90%);
+        color: #1e3a8a;
+        font-weight: 700;
+        border-radius: 10px;
+        border: none;
+        font-size: 1.17rem;
+        margin-top: .5rem;
+        padding: 12px 28px;
+        transition: background .2s, color .2s;
+        box-shadow:0 2px 8px #efefdb42;
+    }}
+    .stButton>button:hover {{
+        background: #ffe03c;
+        color: #007bff;
+    }}
+    .stFileUploader > div[data-testid="stFileUploaderDropzone"] {{
+        border: 2px dashed #1e3a8a;
+        border-radius: 12px;
+        background: #fffbe7bb;
+        color: #1e3a8a;
+    }}
+    .stFileUploader label {{
+        font-size: 1.04rem;
+        color: #18306e;
+        letter-spacing: 0.5px;
+    }}
+    .stAlert {{
+        border-radius: 10px;
+    }}
+    </style>
+  """,
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    f"""
+    <div class="hero-card">
+        <img src="{icon_url}" class="title-icon" alt="SnapCal Logo">
+        <div class="snapcal-title">SnapCal</div>
+        <div class="app-description">
+            AI-powered calorie estimation from a single photo.<br>
+            Upload a meal image, and SnapCal will instantly analyze and predict its calories.<br>
+            <span style='color:#FFD700;font-weight:600;'>Eat smart, snap fast, stay healthy.</span>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# ---- Main App Logic (Buttons, Upload, Results) ----
+
+st.write("")
+st.markdown('<hr class="snapcal-divider"/>', unsafe_allow_html=True)
+
+if 'show_camera' not in st.session_state:
+    st.session_state.show_camera = False
+
+if st.button("Take a Photo"):
     st.session_state.show_camera = True
 
-uploaded_file = st.file_uploader("Choose an image...", type=["png", "jpg", "jpeg"])
+uploaded_file = st.file_uploader(
+    "Upload your meal photo (.png, .jpg, .jpeg)...",
+    type=["png", "jpg", "jpeg"],
+    key="main-uploader"
+)
 
-camera_image = None
-if st.session_state.show_camera:
-    camera_image = st.camera_input("Or take a picture!")
-
+camera_image = st.camera_input("Or capture with webcam") if st.session_state.show_camera else None
 
 image = None
 if uploaded_file is not None:
+    from PIL import Image
     image = Image.open(uploaded_file).convert("RGB")
 elif camera_image is not None:
+    from PIL import Image
     image = Image.open(camera_image).convert("RGB")
 
+if image is not None:
+    st.image(image, caption="Your submitted meal", use_column_width=True)
+    if st.button("Estimate Calories"):
+        # Preprocess the image
+        input_tensor = val_test_transform_rgb(image).unsqueeze(0).to(device)
 
-if image is not None and st.button('Estimate Calories'):
-    try:
-        image_rgb_tensor = transform_rgb(image).unsqueeze(0)
-
-        heat_pil, depth_pil = generate_mono_placeholders(image)
-
-        image_heat_tensor = mono_transform(heat_pil).unsqueeze(0)
-        image_depth_tensor = mono_transform(depth_pil).unsqueeze(0)
-
-        model.to('cpu')
-        model.eval()
-
+        # Make prediction
         with torch.no_grad():
-            prediction = model(image_rgb_tensor, image_heat_tensor, image_depth_tensor)
-            estimated_calories = prediction.item()
+            prediction = model(input_tensor).item()
 
-        st.write("---")
-        st.subheader("Processed Inputs to the Model")
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.image(image, caption="Original RGB", use_column_width=True)
-        with col2:
-            st.image(heat_pil, caption="Generated Heat Placeholder", use_column_width=True)
-        with col3:
-            st.image(depth_pil, caption="Generated Depth Placeholder", use_column_width=True)
-        st.write("---")
+        st.success(f"Estimated Calories: {prediction:.1f} kcal")
+        st.info("Nutritional estimate based on AI analysis. For best results, use clear and well-lit meal images.")
 
-        st.success(f"Estimated Calories: {estimated_calories:.2f} kcal")
-        st.warning("Note: Heat and Depth inputs shown above are generated from the RGB image using simple image processing techniques as placeholders. Accuracy may be limited compared to using actual multi-modal data.")
+else:
+    st.write(
+        """<div style="text-align:center;color:#888;font-size:1.1rem;">
+        No image uploaded yet.<br>Drag and drop, browse, or use the camera above.
+        </div>""",
+        unsafe_allow_html=True
+    )
 
-    except Exception as e:
-        st.error(f"Error during prediction: {e}")
+st.write("")
+st.markdown('<hr class="snapcal-divider"/>', unsafe_allow_html=True)
+
+st.caption("© 2025 SnapCal – Creative Technologies Capstone")
