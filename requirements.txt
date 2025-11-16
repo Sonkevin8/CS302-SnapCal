@@ -1,0 +1,10 @@
+torch
+torchvision
+streamlit
+pandas
+numpy
+opencv-python-headless
+tqdm
+matplotlib
+pyngrok
+timm
