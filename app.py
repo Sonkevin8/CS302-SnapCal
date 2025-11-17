@@ -107,38 +107,49 @@ if st.session_state.show_faq:
     with st.expander("Frequently Asked Questions", expanded=True):
         st.markdown("""
         <style>
+        .faq-panel-bg {
+            background: linear-gradient(120deg, #555 0%, #8e9ba0 80%);
+            padding: 23px 20px 16px 20px;
+            border-radius: 24px;
+            margin-top: 10px;
+            margin-bottom: 6px;
+            box-shadow: 0 6px 16px 2px #00000023;
+        }
         .faq-q {
-            font-size: 1.16rem !important;
+            font-size: 1.18rem !important;
             font-weight: 900 !important;
-            color: #18306e !important;
-            margin-bottom: 2px;
-            margin-top: 13px;
+            color: #ffe88e !important;
+            margin-bottom: 3px;
+            margin-top: 16px;
             line-height: 1.3;
             letter-spacing: 0.2px;
         }
         .faq-a {
-            font-size: 1.05rem !important;
+            font-size: 1.08rem !important;
             font-weight: 500 !important;
-            color: #222 !important;
-            margin-bottom: 7px;
-            margin-left: 2px;
-            line-height: 1.45;
+            color: #fff !important;
+            margin-bottom: 10px;
+            margin-left: 3px;
+            line-height: 1.47;
+            text-shadow: 0px 1px 11px #222c, 0 2px 6px #5557;
         }
         </style>
-        <div class="faq-q">Q: What does this estimate represent?</div>
-        <div class="faq-a">AI-based calorie estimate (kcal) from an image. It's an approximation, not a clinical result.</div>
+        <div class="faq-panel-bg">
+            <div class="faq-q">Q: What does this estimate represent?</div>
+            <div class="faq-a">AI-based calorie estimate (kcal) from an image. It's an approximation, not a clinical result.</div>
 
-        <div class="faq-q">Q: How accurate is it?</div>
-        <div class="faq-a">Depends on image quality, portion visibility, and food diversity. Best for clearly visible, single meals!</div>
+            <div class="faq-q">Q: How accurate is it?</div>
+            <div class="faq-a">Depends on image quality, portion visibility, and food diversity. Best for clearly visible, single meals!</div>
 
-        <div class="faq-q">Q: Is my image stored or shared?</div>
-        <div class="faq-a">Never. The image is processed <em>in your session only</em>; not logged or sent to any third-party.</div>
+            <div class="faq-q">Q: Is my image stored or shared?</div>
+            <div class="faq-a">Never. The image is processed <em>in your session only</em>; not logged or sent to any third-party.</div>
 
-        <div class="faq-q">Q: Best photo tips?</div>
-        <div class="faq-a">Single plate, top-down or 45°, bright/neutral background, avoid occlusion!</div>
+            <div class="faq-q">Q: Best photo tips?</div>
+            <div class="faq-a">Single plate, top-down or 45°, bright/neutral background, avoid occlusion!</div>
 
-        <div class="faq-q">Q: Multi-item images?</div>
-        <div class="faq-a">For accuracy, one meal at a time. Complex plates lower accuracy.</div>
+            <div class="faq-q">Q: Multi-item images?</div>
+            <div class="faq-a">For accuracy, one meal at a time. Complex plates lower accuracy.</div>
+        </div>
         """, unsafe_allow_html=True)
 
 # ========== HERO SECTION ==========
