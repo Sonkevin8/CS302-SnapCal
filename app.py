@@ -236,15 +236,14 @@ if image is not None:
         if 'show_faq' not in st.session_state:
             st.session_state.show_faq = False
 
-        # Place FAQ button to the right of the result area
-        cols = st.columns([3, 1])
-        with cols[1]:
+        # Place FAQ button at the top right corner, always visible
+        faq_cols = st.columns([8, 1])
+        with faq_cols[1]:
             if st.button("FAQ"):
-                st.session_state.show_faq = not st.session_state.show_faq
-                if st.button("Close FAQ"):
-                    st.session_state.show_faq = False
+                st.session_state.show_faq = True
+
         # Display FAQ panel when toggled
-        if st.session_state.show_faq:
+        if st.session_state.get('show_faq', False):
             with st.expander("Frequently Asked Questions", expanded=True):
                 st.markdown("**Q: What does this estimate represent?**\n\nThis is an AI-based calorie estimate (kcal) produced from a single image. It should be taken as an approximate value, not a medical or nutritional diagnosis.")
                 st.markdown("**Q: How accurate is it?**\n\nAccuracy depends on image quality, portion visibility, food diversity, and how similar the meal is to what the model saw during training. Typical errors can be significant for mixed or occluded dishes.")
@@ -267,3 +266,5 @@ st.write("")
 st.markdown('<hr class="snapcal-divider"/>', unsafe_allow_html=True)
 
 st.caption("© 2025 SnapCal – Creative Technologies Capstone")
+
+
