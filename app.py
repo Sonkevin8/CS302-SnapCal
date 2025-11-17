@@ -66,37 +66,29 @@ def load_model():
 model = load_model()
 
 
-# ---- Header Menu with FAQ Button on the left ----
-header_cols = st.columns([1, 8])
-with header_cols[0]:
-    # Use the same FAQ button to open/close the FAQ panel
-    faq_label = "Close FAQ" if st.session_state.get('show_faq', False) else "FAQ"
-    if st.button(faq_label, key="faq_toggle"):
-        st.session_state.show_faq = not st.session_state.get('show_faq', False)
-
-# ---- FAQ Panel ----
-if st.session_state.get('show_faq', False):
+# ---- Header Menu with FAQ Button (short height, horizontal alignment) ----
+header_cols = st.columns([8, 1])
+with header_cols[1]:
     st.markdown(
         """
-        <div style="
-            background: rgba(255,255,255,0.5);
-            border-radius: 18px;
-            box-shadow: 0px 2px 18px #2228;
-            padding: 2rem 2.5rem;
-            margin: 1.5rem 0;
-            color: #1e3a8a;
-            font-family: 'Segoe UI', Arial, sans-serif;
-        ">
+        <div style="display: flex; justify-content: flex-end; align-items: center; height: 40px;">
+        </div>
         """,
         unsafe_allow_html=True
     )
+    if st.button("FAQ", key="faq_open"):
+        st.session_state.show_faq = True
+
+# ---- FAQ Panel ----
+if st.session_state.get('show_faq', False):
     with st.expander("Frequently Asked Questions", expanded=True):
         st.markdown("**Q: What does this estimate represent?**\n\nThis is an AI-based calorie estimate (kcal) produced from a single image. It should be taken as an approximate value, not a medical or nutritional diagnosis.")
         st.markdown("**Q: How accurate is it?**\n\nAccuracy depends on image quality, portion visibility, food diversity, and how similar the meal is to what the model saw during training. Typical errors can be significant for mixed or occluded dishes.")
         st.markdown("**Q: How should I take photos for best results?**\n\nUse a single-plate view, good lighting, minimal occlusion, and a neutral background. Top-down or 45° angled shots work well.")
         st.markdown("**Q: Is my image stored or shared?**\n\nImages are processed locally in your session unless you explicitly upload them to a remote service. The app does not automatically share images.")
         st.markdown("**Q: Can I estimate multiple items at once?**\n\nFor best results, upload one meal/plate at a time. Complex multi-item plates can reduce accuracy.")
-    st.markdown("</div>", unsafe_allow_html=True)
+        if st.button("Close FAQ", key="faq_close"):
+            st.session_state.show_faq = False
 
 # ---- Stylish Hero Section with Background ----
 
