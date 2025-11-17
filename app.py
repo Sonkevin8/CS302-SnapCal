@@ -66,36 +66,12 @@ def load_model():
 model = load_model()
 
 
-# ---- Header Menu with FAQ Button (right-aligned, no vertical stretching) ----
-st.markdown(
-    """
-    <div style="display: flex; justify-content: flex-end; align-items: center; height: 48px;">
-        <style>
-            .faq-btn {
-                background: linear-gradient(90deg,#ffdc51,#f8ffae 90%);
-                color: #1e3a8a;
-                font-weight: 700;
-                border-radius: 10px;
-                border: none;
-                font-size: 1.17rem;
-                padding: 12px 28px;
-                cursor: pointer;
-                box-shadow:0 2px 8px #efefdb42;
-            }
-            .faq-btn:hover {
-                background: #ffe03c;
-                color: #007bff;
-            }
-        </style>
-        <form action="#" method="post">
-            <button class="faq-btn" type="submit" name="faq" id="faq-btn">FAQ</button>
-        </form>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-if st.button("FAQ", key="faq_open"):
-    st.session_state.show_faq = True
+# ---- Header Menu with FAQ Button (right-aligned, working only) ----
+
+header_cols = st.columns([8, 1])
+with header_cols[1]:
+    if st.button("FAQ", key="faq_open"):
+        st.session_state.show_faq = True
 
 # ---- FAQ Panel ----
 if st.session_state.get('show_faq', False):
