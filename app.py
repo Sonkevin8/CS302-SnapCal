@@ -264,4 +264,11 @@ else:
         <strong>No image uploaded yet.</strong><br>Drag and drop, browse, or use the camera above.
         </div>""", unsafe_allow_html=True)
 
+st.markdown(
+    """
+    <button id="faq-btn">FAQ</button>
+    """,
+    unsafe_allow_html=True
+)
+
 st.caption("© 2025 SnapCal – Creative Technologies Capstone")
