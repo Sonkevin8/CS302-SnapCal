@@ -66,10 +66,16 @@ def load_model():
 model = load_model()
 
 
-# ---- Header Menu with FAQ Button (right-aligned, working only) ----
-
+# ---- Header Menu with FAQ Button (short height, horizontal alignment) ----
 header_cols = st.columns([8, 1])
 with header_cols[1]:
+    st.markdown(
+        """
+        <div style="display: flex; justify-content: flex-end; align-items: center; height: 40px;">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     if st.button("FAQ", key="faq_open"):
         st.session_state.show_faq = True
 
