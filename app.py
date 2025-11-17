@@ -241,7 +241,8 @@ if image is not None:
         with cols[1]:
             if st.button("FAQ"):
                 st.session_state.show_faq = not st.session_state.show_faq
-
+                if st.button("Close FAQ"):
+                    st.session_state.show_faq = False
         # Display FAQ panel when toggled
         if st.session_state.show_faq:
             with st.expander("Frequently Asked Questions", expanded=True):
