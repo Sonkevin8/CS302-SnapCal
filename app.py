@@ -71,7 +71,7 @@ header_cols = st.columns([8, 1])
 with header_cols[1]:
     st.markdown(
         """
-        <div style="display: flex; justify-content: flex-end; align-items: center; height: 40px;">
+        <div style="display: flex; justify-content: flex-end; align-items: center; height: 10px;">
         </div>
         """,
         unsafe_allow_html=True
