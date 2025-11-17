@@ -9,7 +9,6 @@ import torchvision.models as models
 # ========== Gold Button Styling ==========
 st.markdown("""
 <style>
-/* Style all Streamlit buttons gold */
 .stButton > button {
     background: linear-gradient(90deg, #FFD700 0%, #FFB300 100%) !important;
     color: #1e3a8a !important;
@@ -27,30 +26,6 @@ st.markdown("""
 .stButton > button:hover {
     background: linear-gradient(90deg, #FFB300 0%, #FFD700 100%) !important;
     color: #0f235e !important;
-}
-/* Custom FAQ gold button for header, always right aligned, responsive */
-.sfaqbtn {
-    background: linear-gradient(90deg,#FFD700 0%,#FFB300 100%);
-    color: #1e3a8a; font-weight:800;
-    border:none; border-radius:8px;
-    font-size:1.13rem; box-shadow:0 2px 12px #ffe98a55;
-    padding:8px 22px; cursor:pointer;
-    transition: background .2s, color .2s;
-    position:relative; top:0;
-    margin-top:3px;margin-bottom:5px;  
-}
-.sfaqbtn:hover {
-    background: linear-gradient(90deg,#FFB300 0%,#FFD700 100%);
-    color:#0f235e;
-}
-@media only screen and (max-width: 700px) {
-    .sfaqcontainer{
-        padding-left: 0 !important; padding-right: 0 !important;
-    }
-    .sfaqbtn {font-size:1.03rem; min-width:90px;}
-}
-.sfaqcontainer{
-    display: flex; justify-content: flex-end; align-items: center; width:100%;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -96,60 +71,18 @@ def load_model():
 
 model = load_model()
 
-# ========== Responsive Gold FAQ Button, always right ==========
+# ========== HEADER: FAQ BUTTON RIGHT-ALIGNED ==========
 
 if "show_faq" not in st.session_state:
     st.session_state.show_faq = False
 
-with st.container():
+header_col1, header_col2 = st.columns([10, 1])
+with header_col1:
+    pass  # Add your logo/title here if needed
+with header_col2:
     faq_label = "❓ FAQ" if not st.session_state.show_faq else "❌ Close FAQ"
-    faq_form = f'''
-    <div class="sfaqcontainer">
-        <form action="" method="post">
-            <button type="submit" class="sfaqbtn">{faq_label}</button>
-        </form>
-    </div>
-    '''
-    clicked = st.markdown(faq_form, unsafe_allow_html=True)
-    if st.session_state.get("faq_was_open") != st.session_state.show_faq:
-        st.session_state["faq_was_open"] = st.session_state.show_faq  # track previous state
-
-    # Read post event from header (works for gold FAQ button form)
-    if st.experimental_get_query_params().get("__faqbtn") or st.session_state.get("_faqbtn_pressed",False):
+    if st.button(faq_label, key="faq_toggle", help="Show or hide FAQ"):
         st.session_state.show_faq = not st.session_state.show_faq
-        st.session_state["_faqbtn_pressed"] = False # reset
-
-    # Hack: Streamlit workaround to trigger toggle reliably!
-    import streamlit.components.v1 as components
-    components.html(
-        """
-        <script>
-        const form = window.parent.document.querySelector('form[action=""]');
-        if(form){
-            form.onsubmit = function(){
-                window.parent.postMessage("__FAQ_TOGGLE__", "*")
-            }
-        }
-        window.addEventListener("message", (ev)=>{
-            if(ev.data === "__FAQ_TOGGLE__"){
-                window.parent.document.body.setAttribute("data-_FAQBTN","1");
-            }
-        })
-        </script>
-        """,height=0
-    )
-    # pseudo-parameter switch
-    if hasattr(st, 'experimental_set_query_params'):
-        import random
-        if st.session_state.show_faq: # adds/removes virtual URL param for toggle
-            st.experimental_set_query_params(**{"__faqbtn":random.randint(1,9999)})
-        else:
-            st.experimental_set_query_params()
-    # override: listen for virtual query
-    if "data-_FAQBTN" in st._get_script_run_ctx().main_dg._parent.st_session_state._state:
-        if st.session_state.get("_faqbtn_pressed") is not True:
-            st.session_state.show_faq = not st.session_state.show_faq
-            st.session_state["_faqbtn_pressed"] = True
 
 # ========== FAQ PANEL ==========
 if st.session_state.show_faq:
