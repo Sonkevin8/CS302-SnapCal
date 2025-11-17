@@ -137,13 +137,13 @@ if st.session_state.show_faq:
         <div class="faq-gradient-bg">
             <div class="faq-q">Q: How accurate is it?</div>
             <div class="faq-a">Depends on image quality, portion visibility, and food diversity. Best for clearly visible, single meals!</div>
-
+        <div class="faq-gradient-bg">
             <div class="faq-q">Q: Is my image stored or shared?</div>
             <div class="faq-a">Never. The image is processed <em>in your session only</em>; not logged or sent to any third-party.</div>
-
+        <div class="faq-gradient-bg">
             <div class="faq-q">Q: Best photo tips?</div>
             <div class="faq-a">Single plate, top-down or 45°, bright/neutral background, avoid occlusion!</div>
-
+        <div class="faq-gradient-bg">
             <div class="faq-q">Q: Multi-item images?</div>
             <div class="faq-a">For accuracy, one meal at a time. Complex plates lower accuracy.</div>
         </div>
