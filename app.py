@@ -161,7 +161,7 @@ st.markdown(
         <div class="snapcal-title">SnapCal</div>
         <div class="app-description">
             AI-powered calorie estimation from a single photo.<br>
-            FAQ:Upload one meal image at a time frome above, and SnapCal will instantly analyze and predict its calories.<br>
+            Upload one meal image at a time frome above, and SnapCal will instantly analyze and predict its calories.<br>
             <span style='color:#FFD700;font-weight:600;'>Eat smart, snap fast, stay healthy.</span>
         </div>
     </div>
@@ -209,28 +209,49 @@ if image is not None:
         st.markdown(
             f"""
             <div style="
-                background: #fff;
-                border-radius: 18px;
-                box-shadow: 0px 2px 18px #e1e1e1ee;
-                padding: 1.2rem 2rem;
-                margin: 1rem 0;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0px 2px 18px #e1e1e1ee;
+            padding: 1.2rem 2rem;
+            margin: 1rem 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             ">
-                <span style="
-                    color: #1e3a8a;
-                    font-size: 2.5rem;
-                    font-weight: 800;
-                    letter-spacing: 1px;
-                    text-shadow: 0 2px 12px #eee;
-                ">
-                    Estimated Calories:<br> {prediction:.1f} kcal
-                </span>
+            <span style="
+                color: #1e3a8a;
+                font-size: 2.5rem;
+                font-weight: 800;
+                letter-spacing: 1px;
+                text-shadow: 0 2px 12px #eee;
+            ">
+                Estimated Calories:<br> {prediction:.1f} kcal
+            </span>
             </div>
             """,
             unsafe_allow_html=True
         )
+
+        # Initialize FAQ toggle in session state
+        if 'show_faq' not in st.session_state:
+            st.session_state.show_faq = False
+
+        # Place FAQ button to the right of the result area
+        cols = st.columns([3, 1])
+        with cols[1]:
+            if st.button("FAQ"):
+            st.session_state.show_faq = not st.session_state.show_faq
+
+        # Display FAQ panel when toggled
+        if st.session_state.show_faq:
+            with st.expander("Frequently Asked Questions", expanded=True):
+            st.markdown("**Q: What does this estimate represent?**\n\nThis is an AI-based calorie estimate (kcal) produced from a single image. It should be taken as an approximate value, not a medical or nutritional diagnosis.")
+            st.markdown("**Q: How accurate is it?**\n\nAccuracy depends on image quality, portion visibility, food diversity, and how similar the meal is to what the model saw during training. Typical errors can be significant for mixed or occluded dishes.")
+            st.markdown("**Q: How should I take photos for best results?**\n\nUse a single-plate view, good lighting, minimal occlusion, and a neutral background. Top-down or 45° angled shots work well.")
+            st.markdown("**Q: Is my image stored or shared?**\n\nImages are processed locally in your session unless you explicitly upload them to a remote service. The app does not automatically share images.")
+            st.markdown("**Q: Can I estimate multiple items at once?**\n\nFor best results, upload one meal/plate at a time. Complex multi-item plates can reduce accuracy.")
+            if st.button("Close FAQ"):
+                st.session_state.show_faq = False
         st.info("Nutritional estimate based on AI analysis. For best results, use clear and well-lit meal images.")
 
 else:
