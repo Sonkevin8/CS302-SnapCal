@@ -141,8 +141,10 @@ with header_col3:
         """,
         unsafe_allow_html=True
     )
-    if st.button("FAQ", key="faq_toggle", help="Show or hide FAQ"):
-        st.session_state.show_faq = not st.session_state.show_faq
+    # Streamlit toggle for FAQ panel
+    faq_label = "Close FAQ" if st.session_state.get('show_faq', False) else "FAQ"
+    if st.button(faq_label, key="faq_toggle"):
+        st.session_state.show_faq = not st.session_state.get('show_faq', False)
 
 # ========== FAQ PANEL ==========
 if st.session_state.show_faq:
