@@ -66,6 +66,25 @@ def load_model():
 model = load_model()
 
 
+# ---- Header Menu with FAQ Button ----
+header_cols = st.columns([8, 1])
+with header_cols[0]:
+    st.markdown("<h2 style='margin-bottom:0;'>SnapCal</h2>", unsafe_allow_html=True)
+with header_cols[1]:
+    if st.button("FAQ", key="faq_open"):
+        st.session_state.show_faq = True
+
+# ---- FAQ Panel ----
+if st.session_state.get('show_faq', False):
+    with st.expander("Frequently Asked Questions", expanded=True):
+        st.markdown("**Q: What does this estimate represent?**\n\nThis is an AI-based calorie estimate (kcal) produced from a single image. It should be taken as an approximate value, not a medical or nutritional diagnosis.")
+        st.markdown("**Q: How accurate is it?**\n\nAccuracy depends on image quality, portion visibility, food diversity, and how similar the meal is to what the model saw during training. Typical errors can be significant for mixed or occluded dishes.")
+        st.markdown("**Q: How should I take photos for best results?**\n\nUse a single-plate view, good lighting, minimal occlusion, and a neutral background. Top-down or 45° angled shots work well.")
+        st.markdown("**Q: Is my image stored or shared?**\n\nImages are processed locally in your session unless you explicitly upload them to a remote service. The app does not automatically share images.")
+        st.markdown("**Q: Can I estimate multiple items at once?**\n\nFor best results, upload one meal/plate at a time. Complex multi-item plates can reduce accuracy.")
+        if st.button("Close FAQ", key="faq_close"):
+            st.session_state.show_faq = False
+
 # ---- Stylish Hero Section with Background ----
 
 background_img_url = "https://images.pexels.com/photos/70497/pexels-photo-70497.jpeg?auto=compress&fit=crop&w=1350&q=80"
@@ -168,25 +187,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
-# ---- Header Menu with FAQ Button ----
-header_cols = st.columns([8, 1])
-with header_cols[0]:
-    st.markdown("<h2 style='margin-bottom:0;'>SnapCal</h2>", unsafe_allow_html=True)
-with header_cols[1]:
-    if st.button("FAQ", key="faq_open"):
-        st.session_state.show_faq = True
-
-# ---- FAQ Panel ----
-if st.session_state.get('show_faq', False):
-    with st.expander("Frequently Asked Questions", expanded=True):
-        st.markdown("**Q: What does this estimate represent?**\n\nThis is an AI-based calorie estimate (kcal) produced from a single image. It should be taken as an approximate value, not a medical or nutritional diagnosis.")
-        st.markdown("**Q: How accurate is it?**\n\nAccuracy depends on image quality, portion visibility, food diversity, and how similar the meal is to what the model saw during training. Typical errors can be significant for mixed or occluded dishes.")
-        st.markdown("**Q: How should I take photos for best results?**\n\nUse a single-plate view, good lighting, minimal occlusion, and a neutral background. Top-down or 45° angled shots work well.")
-        st.markdown("**Q: Is my image stored or shared?**\n\nImages are processed locally in your session unless you explicitly upload them to a remote service. The app does not automatically share images.")
-        st.markdown("**Q: Can I estimate multiple items at once?**\n\nFor best results, upload one meal/plate at a time. Complex multi-item plates can reduce accuracy.")
-        if st.button("Close FAQ", key="faq_close"):
-            st.session_state.show_faq = False
 
 # ---- Main App Logic (Buttons, Upload, Results) ----
 
