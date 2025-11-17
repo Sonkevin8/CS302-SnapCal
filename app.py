@@ -220,11 +220,8 @@ if image is not None:
     if st.button("Estimate Calories"):
         # Preprocess the image
         input_tensor = val_test_transform_rgb(image).unsqueeze(0).to(device)
-
-        # Make prediction
         with torch.no_grad():
             prediction = model(input_tensor).item()
-
         st.markdown(
             f"""
             <div style="
@@ -250,7 +247,6 @@ if image is not None:
             """,
             unsafe_allow_html=True
         )
-
         st.info("Nutritional estimate based on AI analysis. For best results, use clear and well-lit meal images.")
 
 else:
