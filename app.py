@@ -89,8 +89,6 @@ with header_col1:
     if faq_clicked:
         st.session_state.show_faq = not st.session_state.show_faq
 
-    home_clicked = btn_col2.button("Home", key="home_btn", help="Restart to Home Page")
-
 if home_clicked:
     st.markdown(
         """
