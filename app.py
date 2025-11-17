@@ -27,36 +27,10 @@ st.markdown("""
     background: linear-gradient(90deg, #FFB300 0%, #FFD700 100%) !important;
     color: #0f235e !important;
 }
-
-/* Use unique class for FAQ, we'll assign this with its key */
-.faq-custom {
-    background: linear-gradient(90deg, #FFD700 0%, #FFB300 100%) !important;
-    color: #1e3a8a !important;
-    border: none !important;
-    font-weight: 800 !important;
-    border-radius: 8px !important;
-    font-size: 1.13rem !important;
-    box-shadow: 0 2px 12px #ffe98a55 !important;
-    transition: background .2s,color .2s,box-shadow .18s;
-    outline: none !important;
-}
-.faq-custom:hover, .faq-custom:focus {
-    background: linear-gradient(90deg, #FFB300 0%, #FFD700 100%) !important;
-    color: #0f235e !important;
-}
-
-/* When FAQ is open, highlight the button */
-.faq-highlight {
-    background: linear-gradient(90deg, #ffc93f 0%, #b58f00 100%) !important;
-    color: #fff !important;
-    border: 2.5px solid #b58f00 !important;
-    box-shadow: 0 2px 16px #ffe98a99 !important;
-}
 </style>
 """, unsafe_allow_html=True)
 
-# ========== Model Definition ==========
-
+# ========== Model Definition & Loading ==========
 class ResNetRGB(nn.Module):
     """ResNet50-based regressor for calorie estimation (RGB images)."""
     def __init__(self):
@@ -96,32 +70,32 @@ def load_model():
 
 model = load_model()
 
-# ========== HEADER: FAQ BUTTON RIGHT-ALIGNED, HIGHLIGHT WHEN OPEN ==========
+
+# ========== HEADER: FAQ and HOME Left-Aligned, Both Gold ==========
 if "show_faq" not in st.session_state:
     st.session_state.show_faq = False
+if "reset_trigger" not in st.session_state:
+    st.session_state.reset_trigger = False
 
-header_col1, header_col2 = st.columns([10, 1])
+header_col1, header_col2 = st.columns([3, 7])
 with header_col1:
-    pass  # Optional: put your logo/title here
-with header_col2:
-    # Render a unique button, then style via :has CSS selector
-    faq_label = "FAQ"
-    # Assign FAQ button class on the fly
-    btn_class = "faq-custom"
-    if st.session_state.show_faq:
-        # Add highlight class if FAQ is open
-        st.markdown(
-            "<style>.stButton[key='faq_toggle'] button {background: linear-gradient(90deg, #ffc93f 0%, #b58f00 100%) !important;"
-            "color: #fff !important; border:2.5px solid #b58f00 !important; box-shadow: 0 2px 16px #ffe98a99 !important;}</style>",
-            unsafe_allow_html=True,
-        )
-    else:
-        st.markdown(
-            "<style>.stButton[key='faq_toggle'] button {background: linear-gradient(90deg, #FFD700 0%, #FFB300 100%) !important;"
-            "color: #1e3a8a !important; border:none !important;}</style>", unsafe_allow_html=True,
-        )
-    if st.button(faq_label, key="faq_toggle", help="Show or hide FAQ"):
+    btn_col1, btn_col2 = st.columns(2)
+    # FAQ gold button
+    faq_clicked = btn_col1.button("FAQ", key="faq_toggle", help="Show or hide FAQ")
+    # Home gold button
+    home_clicked = btn_col2.button("Home", key="home_btn", help="Restart to Home Page")
+
+    # Event handlers
+    if faq_clicked:
         st.session_state.show_faq = not st.session_state.show_faq
+    if home_clicked:
+        for k in list(st.session_state.keys()):
+            if k not in {"show_faq", "reset_trigger"}:
+                del st.session_state[k]
+        st.session_state.reset_trigger = True
+        st.experimental_rerun()
+with header_col2:
+    pass
 
 # ========== FAQ PANEL ==========
 if st.session_state.show_faq:
@@ -151,7 +125,11 @@ st.set_page_config(page_title="SnapCal", layout="centered")
 
 st.markdown(f"""
     <style>
-    .stApp {{background-image: url('{background_img_url}'); background-size: cover; background-attachment: fixed;}}
+    .stApp {{
+        background-image: url('{background_img_url}');
+        background-size: cover;
+        background-attachment: fixed;
+    }}
     .hero-card {{
         background: rgba(255,255,255,0.88); border-radius: 32px; padding:2.5rem 2rem; margin:2rem auto;
         box-shadow: 0 7px 32px 4px rgba(16,32,45,0.10); max-width: 600px;
@@ -195,12 +173,26 @@ uploaded_file = st.file_uploader("Upload your meal photo (.png, .jpg, .jpeg)..."
     type=["png", "jpg", "jpeg"], key="main-uploader", help="Image is processed in-memory and never stored."
 )
 
+# High-contrast mobile user tip
 if st.session_state.show_camera:
     st.markdown(
         """
-        <div style="background: #f5fbee; border-left:5px solid #ffe03c; border-radius:12px; padding:13px; margin-bottom:8px;">
-            <b>Tip for mobile users:</b><br>
-            If the front (selfie) camera opens by default, <b>tap the camera icon/button</b> in the overlay or your browser’s UI to switch to the <b>back camera</b> for best food photos.
+        <div style="
+            background: #f5fbee;
+            border-left: 5px solid #ffe03c;
+            border-radius: 12px;
+            padding: 13px;
+            margin-bottom: 8px;
+            color: #252525;
+            font-size: 1.07rem;
+            font-weight: 600;
+            text-shadow: 0 1px 6px #fffbe2, 0 0px 1px #eee;
+            ">
+            <span style="color:#18306e; font-weight: 700;">Tip for mobile users:</span><br>
+            If the front (selfie) camera opens by default,
+            <span style="color:#b58f00; font-weight:700;">tap the camera icon/button</span>
+            in the overlay or your browser’s UI to switch to the
+            <span style="color:#1e3a8a; font-weight:700;">back camera</span> for best food photos.
         </div>
         """, unsafe_allow_html=True
     )
@@ -222,6 +214,7 @@ if image:
                 input_tensor = val_test_transform_rgb(image).unsqueeze(0).to(device)
                 with torch.no_grad():
                     prediction = model(input_tensor).item()
+                # === Estimated Calories in white card with big font ===
                 st.markdown(f"""
                     <div style="background:#fff; border-radius:18px; box-shadow:0px 2px 18px #e1e1e1ee; padding:1.2rem 2rem; margin:1rem 0; display:flex; flex-direction:column; align-items:center;">
                         <span style="color:#1e3a8a; font-size:2.5rem; font-weight:800; letter-spacing:1px; text-shadow:0 2px 12px #eee;">
