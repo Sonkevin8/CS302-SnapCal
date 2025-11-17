@@ -89,11 +89,11 @@ with header_col1:
     if faq_clicked:
         st.session_state.show_faq = not st.session_state.show_faq
     if home_clicked:
-        for k in list(st.session_state.keys()):
-            if k not in {"show_faq", "reset_trigger"}:
-                del st.session_state[k]
-        st.session_state.reset_trigger = True
-        st.experimental_rerun()
+        st.markdown("""
+        <script>
+        window.location.reload();
+        </script>
+        """, unsafe_allow_html=True)
 with header_col2:
     pass
 
