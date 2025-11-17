@@ -6,6 +6,30 @@ from PIL import Image
 import os
 import torchvision.models as models
 
+# ========== Gold Button Styling ==========
+st.markdown("""
+<style>
+.stButton > button {
+    background: linear-gradient(90deg, #FFD700 0%, #FFB300 100%) !important;
+    color: #1e3a8a !important;
+    font-weight: 800 !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-size: 1.13rem !important;
+    box-shadow: 0 2px 12px #ffe98a55 !important;
+    padding: 11px 28px !important;
+    margin-top: 6px !important;
+    margin-bottom: 8px !important;
+    cursor: pointer !important;
+    transition: background .2s;
+}
+.stButton > button:hover {
+    background: linear-gradient(90deg, #FFB300 0%, #FFD700 100%) !important;
+    color: #0f235e !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # ========== Model Definition ==========
 
 class ResNetRGB(nn.Module):
@@ -47,16 +71,17 @@ def load_model():
 
 model = load_model()
 
-# ========== FAQ & Header ==========
-
+# ========== Header with Gold FAQ Toggle (on right) ==========
 if "show_faq" not in st.session_state:
     st.session_state.show_faq = False
 
-header_cols = st.columns([8, 1])
+header_cols = st.columns([8, 1])  # FAQ on the RIGHT
 with header_cols[1]:
-    if st.button("FAQ", key="faq_open"):
-        st.session_state.show_faq = True
+    faq_label = "❓ FAQ" if not st.session_state.show_faq else "❌ Close FAQ"
+    if st.button(faq_label, key="faq_toggle"):
+        st.session_state.show_faq = not st.session_state.show_faq
 
+# ========== FAQ Panel ==========
 if st.session_state.show_faq:
     with st.expander("Frequently Asked Questions", expanded=True):
         st.markdown("""
@@ -75,8 +100,6 @@ if st.session_state.show_faq:
             **Q: Multi-item images?**  
             For accuracy, one meal at a time. Complex plates lower accuracy.
         """)
-        if st.button("Close FAQ", key="faq_close"):
-            st.session_state.show_faq = False
 
 # ========== Hero Banner & Brand ==========
 
@@ -116,7 +139,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# ========== Main App & Accessible Upload ==========
+# ========== Main App & Upload Section ==========
 
 st.markdown('<hr style="margin:2.5rem 0; height:2px; background:#ffdc51; border-radius:20px; border:none;"/>', unsafe_allow_html=True)
 
@@ -132,7 +155,18 @@ uploaded_file = st.file_uploader("Upload your meal photo (.png, .jpg, .jpeg)..."
     type=["png", "jpg", "jpeg"], key="main-uploader", help="Image is processed in-memory and never stored."
 )
 
-camera_image = st.camera_input("Or capture with webcam") if st.session_state.show_camera else None
+if st.session_state.show_camera:
+    st.markdown(
+        """
+        <div style="background: #f5fbee; border-left:5px solid #ffe03c; border-radius:12px; padding:13px; margin-bottom:8px;">
+            <b>Tip for mobile users:</b><br>
+            If the front (selfie) camera opens by default, <b>tap the camera icon/button</b> in the overlay or your browser’s UI to switch to the <b>back camera</b> for best food photos.
+        </div>
+        """, unsafe_allow_html=True
+    )
+    camera_image = st.camera_input("Or capture with webcam")
+else:
+    camera_image = None
 
 image = None
 if uploaded_file:
