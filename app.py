@@ -107,34 +107,31 @@ if st.session_state.show_faq:
     with st.expander("Frequently Asked Questions", expanded=True):
         st.markdown("""
         <style>
-        .faq-panel-bg {
-            background: linear-gradient(120deg, #555 0%, #8e9ba0 80%);
-            padding: 23px 20px 16px 20px;
-            border-radius: 24px;
-            margin-top: 10px;
-            margin-bottom: 6px;
-            box-shadow: 0 6px 16px 2px #00000023;
+        .faq-gradient-bg {
+            background: linear-gradient(120deg, #e4e8ec 0%, #c1c7cf 100%);
+            border-radius: 18px;
+            padding: 20px 18px 10px 18px;
+            margin: 0 -10px 0 -10px;
         }
         .faq-q {
-            font-size: 1.18rem !important;
+            font-size: 1.16rem !important;
             font-weight: 900 !important;
-            color: #ffe88e !important;
-            margin-bottom: 3px;
-            margin-top: 16px;
+            color: #18306e !important;
+            margin-bottom: 2px;
+            margin-top: 13px;
             line-height: 1.3;
             letter-spacing: 0.2px;
         }
         .faq-a {
-            font-size: 1.08rem !important;
+            font-size: 1.05rem !important;
             font-weight: 500 !important;
-            color: #fff !important;
-            margin-bottom: 10px;
-            margin-left: 3px;
-            line-height: 1.47;
-            text-shadow: 0px 1px 11px #222c, 0 2px 6px #5557;
+            color: #222 !important;
+            margin-bottom: 7px;
+            margin-left: 2px;
+            line-height: 1.45;
         }
         </style>
-        <div class="faq-panel-bg">
+        <div class="faq-gradient-bg">
             <div class="faq-q">Q: What does this estimate represent?</div>
             <div class="faq-a">AI-based calorie estimate (kcal) from an image. It's an approximation, not a clinical result.</div>
 
