@@ -66,16 +66,27 @@ def load_model():
 model = load_model()
 
 
-# ---- Header Menu with FAQ Button ----
+# ---- Header Menu with FAQ Button (SnapCal title removed) ----
 header_cols = st.columns([8, 1])
-with header_cols[0]:
-    st.markdown("<h2 style='margin-bottom:0;'>SnapCal</h2>", unsafe_allow_html=True)
 with header_cols[1]:
     if st.button("FAQ", key="faq_open"):
         st.session_state.show_faq = True
 
-# ---- FAQ Panel ----
+# ---- FAQ Panel with Darker Background ----
 if st.session_state.get('show_faq', False):
+    st.markdown(
+        """
+        <div style="
+            background: linear-gradient(135deg, #bdbdbd 0%, #444 100%);
+            border-radius: 18px;
+            box-shadow: 0px 2px 18px #2228;
+            padding: 2rem 2.5rem;
+            margin: 1.5rem 0;
+            color: #fff;
+        ">
+        """,
+        unsafe_allow_html=True
+    )
     with st.expander("Frequently Asked Questions", expanded=True):
         st.markdown("**Q: What does this estimate represent?**\n\nThis is an AI-based calorie estimate (kcal) produced from a single image. It should be taken as an approximate value, not a medical or nutritional diagnosis.")
         st.markdown("**Q: How accurate is it?**\n\nAccuracy depends on image quality, portion visibility, food diversity, and how similar the meal is to what the model saw during training. Typical errors can be significant for mixed or occluded dishes.")
@@ -84,6 +95,7 @@ if st.session_state.get('show_faq', False):
         st.markdown("**Q: Can I estimate multiple items at once?**\n\nFor best results, upload one meal/plate at a time. Complex multi-item plates can reduce accuracy.")
         if st.button("Close FAQ", key="faq_close"):
             st.session_state.show_faq = False
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # ---- Stylish Hero Section with Background ----
 
