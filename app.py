@@ -193,10 +193,10 @@ if st.session_state.show_camera:
             font-weight: 600;
             text-shadow: 0 1px 6px #fffbe2, 0 0px 1px #eee;
             ">
-            <span style="color:#18306e; font-weight: 700;">Tip for mobile users:</span><br>
+            <span style="color:#18306e; font-weight: 700;">Tip:</span><br>
             If the front (selfie) camera opens by default,
             <span style="color:#b58f00; font-weight:700;">tap the camera icon/button</span>
-            in the overlay or your browser’s UI to switch to the
+            to switch to the
             <span style="color:#1e3a8a; font-weight:700;">back camera</span> for best food photos.
         </div>
         """, unsafe_allow_html=True
