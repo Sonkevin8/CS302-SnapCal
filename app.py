@@ -243,7 +243,7 @@ if image is not None:
                 st.session_state.show_faq = not st.session_state.show_faq
                 if st.button("Close FAQ"):
                     st.session_state.show_faq = False
-        # Display FAQ panel when toggled
+        # FAQ button moved to footer (see bottom of app)
         if st.session_state.show_faq:
             with st.expander("Frequently Asked Questions", expanded=True):
                 st.markdown("**Q: What does this estimate represent?**\n\nThis is an AI-based calorie estimate (kcal) produced from a single image. It should be taken as an approximate value, not a medical or nutritional diagnosis.")
