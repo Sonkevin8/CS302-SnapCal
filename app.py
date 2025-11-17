@@ -149,36 +149,6 @@ st.markdown(
     .stAlert {{
         border-radius: 10px;
     }}
-    .calorie-result {{
-        background: linear-gradient(135deg, #ffdc51 0%, #f8ffae 100%);
-        border: 3px solid #1e3a8a;
-        border-radius: 16px;
-        padding: 2.5rem;
-        margin: 2rem auto;
-        text-align: center;
-        box-shadow: 0 8px 24px rgba(30, 58, 138, 0.2);
-        max-width: 500px;
-    }}
-    .calorie-label {{
-        font-size: 1.5rem;
-        color: #1e3a8a;
-        font-weight: 600;
-        margin-bottom: 0.75rem;
-        letter-spacing: 1px;
-    }}
-    .calorie-value {{
-        font-size: 3.5rem;
-        color: #1e3a8a;
-        font-weight: 900;
-        letter-spacing: 2px;
-        text-shadow: 0 2px 8px rgba(255, 220, 81, 0.3);
-    }}
-    .calorie-unit {{
-        font-size: 1.8rem;
-        color: #1e3a8a;
-        font-weight: 700;
-        margin-top: 0.5rem;
-    }}
     </style>
   """,
     unsafe_allow_html=True
@@ -191,7 +161,7 @@ st.markdown(
         <div class="snapcal-title">SnapCal</div>
         <div class="app-description">
             AI-powered calorie estimation from a single photo.<br>
-            Upload a meal image, and SnapCal will instantly analyze and predict its calories.<br>
+            FAQ:Upload one meal image at a time frome above, and SnapCal will instantly analyze and predict its calories.<br>
             <span style='color:#FFD700;font-weight:600;'>Eat smart, snap fast, stay healthy.</span>
         </div>
     </div>
@@ -236,7 +206,31 @@ if image is not None:
         with torch.no_grad():
             prediction = model(input_tensor).item()
 
-        st.success(f"Estimated Calories: {prediction:.1f} kcal")
+        st.markdown(
+            f"""
+            <div style="
+                background: #fff;
+                border-radius: 18px;
+                box-shadow: 0px 2px 18px #e1e1e1ee;
+                padding: 1.2rem 2rem;
+                margin: 1rem 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            ">
+                <span style="
+                    color: #1e3a8a;
+                    font-size: 2.5rem;
+                    font-weight: 800;
+                    letter-spacing: 1px;
+                    text-shadow: 0 2px 12px #eee;
+                ">
+                    Estimated Calories:<br> {prediction:.1f} kcal
+                </span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         st.info("Nutritional estimate based on AI analysis. For best results, use clear and well-lit meal images.")
 
 else:
