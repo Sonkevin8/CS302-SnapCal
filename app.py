@@ -236,9 +236,9 @@ if image is not None:
         if 'show_faq' not in st.session_state:
             st.session_state.show_faq = False
 
-        # Place FAQ button to the right of the result area
-        cols = st.columns([3, 1])
-        with cols[1]:
+        # Place FAQ button at the top right corner, always visible
+        faq_cols = st.columns([8, 1])
+        with faq_cols[1]:
             if st.button("FAQ"):
                 st.session_state.show_faq = not st.session_state.show_faq
                 if st.button("Close FAQ"):
@@ -280,3 +280,5 @@ st.write("")
 st.markdown('<hr class="snapcal-divider"/>', unsafe_allow_html=True)
 
 st.caption("© 2025 SnapCal – Creative Technologies Capstone")
+
+
