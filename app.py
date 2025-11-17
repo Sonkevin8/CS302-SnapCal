@@ -180,18 +180,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# ---- Header Menu with Home and FAQ Buttons on the left ----
-header_cols = st.columns([2, 8])
-with header_cols[0]:
-    col1, col2 = st.columns([1, 1])
-    # Home button: restarts the page
-    if col1.button("Home", key="home_btn"):
-        st.experimental_rerun()
-    # FAQ button: toggles FAQ panel
-    faq_label = "Close FAQ" if st.session_state.get('show_faq', False) else "FAQ"
-    if col2.button(faq_label, key="faq_toggle"):
-        st.session_state.show_faq = not st.session_state.get('show_faq', False)
-
 # ========== MAIN UPLOAD SECTION ==========
 st.markdown('<hr style="margin:2.5rem 0; height:2px; background:#ffdc51; border-radius:20px; border:none;"/>', unsafe_allow_html=True)
 
