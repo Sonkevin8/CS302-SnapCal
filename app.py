@@ -174,7 +174,7 @@ header_cols = st.columns([8, 1])
 with header_cols[0]:
     st.markdown("<h2 style='margin-bottom:0;'>SnapCal</h2>", unsafe_allow_html=True)
 with header_cols[1]:
-    if st.button("FAQ"):
+    if st.button("FAQ", key="faq_open"):
         st.session_state.show_faq = True
 
 # ---- FAQ Panel ----
@@ -185,7 +185,7 @@ if st.session_state.get('show_faq', False):
         st.markdown("**Q: How should I take photos for best results?**\n\nUse a single-plate view, good lighting, minimal occlusion, and a neutral background. Top-down or 45° angled shots work well.")
         st.markdown("**Q: Is my image stored or shared?**\n\nImages are processed locally in your session unless you explicitly upload them to a remote service. The app does not automatically share images.")
         st.markdown("**Q: Can I estimate multiple items at once?**\n\nFor best results, upload one meal/plate at a time. Complex multi-item plates can reduce accuracy.")
-        if st.button("Close FAQ"):
+        if st.button("Close FAQ", key="faq_close"):
             st.session_state.show_faq = False
 
 # ---- Main App Logic (Buttons, Upload, Results) ----
