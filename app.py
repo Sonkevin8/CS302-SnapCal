@@ -6,7 +6,7 @@ from PIL import Image
 import os
 import torchvision.models as models
 
-# ========== Gold Button Styling ==========
+# ========== Gold Button Styling for All Buttons ==========
 st.markdown("""
 <style>
 .stButton > button {
@@ -21,11 +21,36 @@ st.markdown("""
     margin-top: 6px !important;
     margin-bottom: 8px !important;
     cursor: pointer !important;
-    transition: background .2s;
+    transition: background .2s,color .2s,box-shadow .18s;
 }
 .stButton > button:hover {
     background: linear-gradient(90deg, #FFB300 0%, #FFD700 100%) !important;
     color: #0f235e !important;
+}
+
+/* Use unique class for FAQ, we'll assign this with its key */
+.faq-custom {
+    background: linear-gradient(90deg, #FFD700 0%, #FFB300 100%) !important;
+    color: #1e3a8a !important;
+    border: none !important;
+    font-weight: 800 !important;
+    border-radius: 8px !important;
+    font-size: 1.13rem !important;
+    box-shadow: 0 2px 12px #ffe98a55 !important;
+    transition: background .2s,color .2s,box-shadow .18s;
+    outline: none !important;
+}
+.faq-custom:hover, .faq-custom:focus {
+    background: linear-gradient(90deg, #FFB300 0%, #FFD700 100%) !important;
+    color: #0f235e !important;
+}
+
+/* When FAQ is open, highlight the button */
+.faq-highlight {
+    background: linear-gradient(90deg, #ffc93f 0%, #b58f00 100%) !important;
+    color: #fff !important;
+    border: 2.5px solid #b58f00 !important;
+    box-shadow: 0 2px 16px #ffe98a99 !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -71,16 +96,30 @@ def load_model():
 
 model = load_model()
 
-# ========== HEADER: FAQ BUTTON RIGHT-ALIGNED ==========
-
+# ========== HEADER: FAQ BUTTON RIGHT-ALIGNED, HIGHLIGHT WHEN OPEN ==========
 if "show_faq" not in st.session_state:
     st.session_state.show_faq = False
 
 header_col1, header_col2 = st.columns([10, 1])
 with header_col1:
-    pass  # Add your logo/title here if needed
+    pass  # Optional: put your logo/title here
 with header_col2:
-    faq_label = "❓ FAQ" if not st.session_state.show_faq else "❌ Close FAQ"
+    # Render a unique button, then style via :has CSS selector
+    faq_label = "FAQ"
+    # Assign FAQ button class on the fly
+    btn_class = "faq-custom"
+    if st.session_state.show_faq:
+        # Add highlight class if FAQ is open
+        st.markdown(
+            "<style>.stButton[key='faq_toggle'] button {background: linear-gradient(90deg, #ffc93f 0%, #b58f00 100%) !important;"
+            "color: #fff !important; border:2.5px solid #b58f00 !important; box-shadow: 0 2px 16px #ffe98a99 !important;}</style>",
+            unsafe_allow_html=True,
+        )
+    else:
+        st.markdown(
+            "<style>.stButton[key='faq_toggle'] button {background: linear-gradient(90deg, #FFD700 0%, #FFB300 100%) !important;"
+            "color: #1e3a8a !important; border:none !important;}</style>", unsafe_allow_html=True,
+        )
     if st.button(faq_label, key="faq_toggle", help="Show or hide FAQ"):
         st.session_state.show_faq = not st.session_state.show_faq
 
