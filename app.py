@@ -52,7 +52,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 @st.cache_resource
 def load_model():
     model = ResNetRGB().to(device)
-    checkpoint_path = os.path.join("checkpoints", "best_resnet50_rgb.pt")
+    checkpoint_path = os.path.join("checkpoints", "best_resnet50_rgb_retrained.pt")
     if os.path.exists(checkpoint_path):
         checkpoint = torch.load(checkpoint_path, map_location=device)
         model.load_state_dict(checkpoint["model_state_dict"])
@@ -148,6 +148,36 @@ st.markdown(
     }}
     .stAlert {{
         border-radius: 10px;
+    }}
+    .calorie-result {{
+        background: linear-gradient(135deg, #ffdc51 0%, #f8ffae 100%);
+        border: 3px solid #1e3a8a;
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin: 2rem auto;
+        text-align: center;
+        box-shadow: 0 8px 24px rgba(30, 58, 138, 0.2);
+        max-width: 500px;
+    }}
+    .calorie-label {{
+        font-size: 1.5rem;
+        color: #1e3a8a;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        letter-spacing: 1px;
+    }}
+    .calorie-value {{
+        font-size: 3.5rem;
+        color: #1e3a8a;
+        font-weight: 900;
+        letter-spacing: 2px;
+        text-shadow: 0 2px 8px rgba(255, 220, 81, 0.3);
+    }}
+    .calorie-unit {{
+        font-size: 1.8rem;
+        color: #1e3a8a;
+        font-weight: 700;
+        margin-top: 0.5rem;
     }}
     </style>
   """,
