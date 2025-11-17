@@ -245,6 +245,6 @@ else:
 st.write("")
 st.markdown('<hr class="snapcal-divider"/>', unsafe_allow_html=True)
 
-st.caption("© 2025 SnapCal – Creative Technologies Capstone")
+st.caption("© 2025 SnapCal – Creativee Technologies Capstone")
 
 
