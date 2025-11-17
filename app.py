@@ -71,17 +71,23 @@ def load_model():
 
 model = load_model()
 
-# ========== Header with Gold FAQ Toggle (on right) ==========
+# ========== HEADER: FAQ BUTTON RIGHT-ALIGNED, ALWAYS HORIZONTAL ==========
+
 if "show_faq" not in st.session_state:
     st.session_state.show_faq = False
 
-header_cols = st.columns([8, 1])  # FAQ on the RIGHT
-with header_cols[1]:
-    faq_label = "❓ FAQ" if not st.session_state.show_faq else "❌ Close FAQ"
-    if st.button(faq_label, key="faq_toggle"):
-        st.session_state.show_faq = not st.session_state.show_faq
+header = st.container()
+with header:
+    header_col1, header_col2 = st.columns([10, 1], gap="small")
+    with header_col1:
+        st.markdown("", unsafe_allow_html=True)  # empty, reserved for branding
+    with header_col2:
+        faq_open = st.session_state.show_faq
+        faq_label = "❓ FAQ" if not faq_open else "❌ Close FAQ"
+        if st.button(faq_label, key="faq_toggle", help="Show or hide FAQ"):
+            st.session_state.show_faq = not faq_open
 
-# ========== FAQ Panel ==========
+# ========== FAQ PANEL ==========
 if st.session_state.show_faq:
     with st.expander("Frequently Asked Questions", expanded=True):
         st.markdown("""
@@ -101,8 +107,7 @@ if st.session_state.show_faq:
             For accuracy, one meal at a time. Complex plates lower accuracy.
         """)
 
-# ========== Hero Banner & Brand ==========
-
+# ========== HERO SECTION ==========
 background_img_url = "https://images.pexels.com/photos/70497/pexels-photo-70497.jpeg?auto=compress&fit=crop&w=1350&q=80"
 icon_url = "https://cdn-icons-png.flaticon.com/512/1046/1046857.png"
 
@@ -139,8 +144,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# ========== Main App & Upload Section ==========
-
+# ========== MAIN UPLOAD SECTION ==========
 st.markdown('<hr style="margin:2.5rem 0; height:2px; background:#ffdc51; border-radius:20px; border:none;"/>', unsafe_allow_html=True)
 
 if "show_camera" not in st.session_state:
