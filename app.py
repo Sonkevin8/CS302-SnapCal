@@ -66,16 +66,53 @@ def load_model():
 model = load_model()
 
 
-# ---- Header Menu with FAQ Button ----
+# ---- Header Menu with FAQ Button (no SnapCal title, FAQ button aligned horizontally) ----
 header_cols = st.columns([8, 1])
-with header_cols[0]:
-    st.markdown("<h2 style='margin-bottom:0;'>SnapCal</h2>", unsafe_allow_html=True)
 with header_cols[1]:
+    st.markdown(
+        """
+        <div style="display: flex; justify-content: flex-end; align-items: center; height: 48px;">
+            <style>
+                .faq-btn {
+                    background: linear-gradient(90deg,#ffdc51,#f8ffae 90%);
+                    color: #1e3a8a;
+                    font-weight: 700;
+                    border-radius: 10px;
+                    border: none;
+                    font-size: 1.17rem;
+                    padding: 12px 28px;
+                    cursor: pointer;
+                    box-shadow:0 2px 8px #efefdb42;
+                }
+                .faq-btn:hover {
+                    background: #ffe03c;
+                    color: #007bff;
+                }
+            </style>
+            <form action="#" method="post">
+                <button class="faq-btn" type="submit" name="faq" id="faq-btn">FAQ</button>
+            </form>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     if st.button("FAQ", key="faq_open"):
         st.session_state.show_faq = True
 
 # ---- FAQ Panel ----
 if st.session_state.get('show_faq', False):
+    st.markdown(
+        """
+        <div style="
+            background: linear-gradient(135deg, #e0e0e0 0%, #f7f7f7 100%);
+            border-radius: 18px;
+            box-shadow: 0px 2px 18px #bdbdbd55;
+            padding: 2rem 2.5rem;
+            margin: 1.5rem 0;
+        ">
+        """,
+        unsafe_allow_html=True
+    )
     with st.expander("Frequently Asked Questions", expanded=True):
         st.markdown("**Q: What does this estimate represent?**\n\nThis is an AI-based calorie estimate (kcal) produced from a single image. It should be taken as an approximate value, not a medical or nutritional diagnosis.")
         st.markdown("**Q: How accurate is it?**\n\nAccuracy depends on image quality, portion visibility, food diversity, and how similar the meal is to what the model saw during training. Typical errors can be significant for mixed or occluded dishes.")
@@ -84,6 +121,7 @@ if st.session_state.get('show_faq', False):
         st.markdown("**Q: Can I estimate multiple items at once?**\n\nFor best results, upload one meal/plate at a time. Complex multi-item plates can reduce accuracy.")
         if st.button("Close FAQ", key="faq_close"):
             st.session_state.show_faq = False
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # ---- Stylish Hero Section with Background ----
 
@@ -93,7 +131,7 @@ icon_url = "https://cdn-icons-png.flaticon.com/512/1046/1046857.png" # food plat
 st.set_page_config(page_title="SnapCal", layout="centered", initial_sidebar_state="auto")
 
 st.markdown(
-     f"""
+    f"""
     <style>
     body {{
         background: linear-gradient(120deg, #FCFF6C 0%, #f3f4f9 100%);
