@@ -134,7 +134,7 @@ if st.session_state.show_faq:
         <div class="faq-gradient-bg">
             <div class="faq-q">Q: What does this estimate represent?</div>
             <div class="faq-a">AI-based calorie estimate (kcal) from an image. It's an approximation, not a clinical result.</div>
-
+        <div class="faq-gradient-bg">
             <div class="faq-q">Q: How accurate is it?</div>
             <div class="faq-a">Depends on image quality, portion visibility, and food diversity. Best for clearly visible, single meals!</div>
 
