@@ -69,7 +69,7 @@ model = load_model()
 # ---- Header Menu with FAQ Button ----
 header_cols = st.columns([8, 1])
 with header_cols[0]:
-    st.markdown("<h2 style='margin-bottom:0;'>SnapCal</h2>", unsafe_allow_html=True)
+    st.write("")  # Placeholder to keep the row height minimal
 with header_cols[1]:
     if st.button("FAQ", key="faq_open"):
         st.session_state.show_faq = True
