@@ -6,7 +6,7 @@ from PIL import Image
 import os
 import torchvision.models as models
 
-# ========== Gold Button Styling for All Buttons ==========
+# ========== Gold and Other Button Styling ==========
 st.markdown("""
 <style>
 .stButton > button {
@@ -21,36 +21,28 @@ st.markdown("""
     margin-top: 6px !important;
     margin-bottom: 8px !important;
     cursor: pointer !important;
-    transition: background .2s,color .2s,box-shadow .18s;
+    transition: background .2s, color .2s, box-shadow .18s;
 }
 .stButton > button:hover {
     background: linear-gradient(90deg, #FFB300 0%, #FFD700 100%) !important;
     color: #0f235e !important;
 }
-
-/* Use unique class for FAQ, we'll assign this with its key */
-.faq-custom {
-    background: linear-gradient(90deg, #FFD700 0%, #FFB300 100%) !important;
-    color: #1e3a8a !important;
-    border: none !important;
-    font-weight: 800 !important;
-    border-radius: 8px !important;
-    font-size: 1.13rem !important;
-    box-shadow: 0 2px 12px #ffe98a55 !important;
-    transition: background .2s,color .2s,box-shadow .18s;
-    outline: none !important;
-}
-.faq-custom:hover, .faq-custom:focus {
-    background: linear-gradient(90deg, #FFB300 0%, #FFD700 100%) !important;
-    color: #0f235e !important;
-}
-
-/* When FAQ is open, highlight the button */
-.faq-highlight {
+/* FAQ button highlight (when FAQ is open) */
+.faq-opened {
     background: linear-gradient(90deg, #ffc93f 0%, #b58f00 100%) !important;
     color: #fff !important;
     border: 2.5px solid #b58f00 !important;
     box-shadow: 0 2px 16px #ffe98a99 !important;
+}
+/* Responsive mobile tip container: shows only on mobile width screens */
+.mobile-tip {
+    display: none;
+}
+@media only screen and (max-width: 700px) {
+    .mobile-tip {
+        display: block !important;
+        font-size: 1.04rem;
+    }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -72,7 +64,7 @@ class ResNetRGB(nn.Module):
     def forward(self, x):
         feat = self.pool(self.backbone(x)).flatten(1)
         return self.fc(feat)
-    
+
 val_test_transform_rgb = transforms.Compose([
     transforms.Resize((224, 224)), transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
@@ -96,31 +88,60 @@ def load_model():
 
 model = load_model()
 
-# ========== HEADER: FAQ BUTTON RIGHT-ALIGNED, HIGHLIGHT WHEN OPEN ==========
+# ========== HEADER: HOME LEFT, FAQ RIGHT, HIGHLIGHT FAQ IF OPEN ==========
 if "show_faq" not in st.session_state:
     st.session_state.show_faq = False
 
-header_col1, header_col2 = st.columns([10, 1])
+header_col1, header_col2, header_col3 = st.columns([1, 9, 1])
+
 with header_col1:
-    pass  # Optional: put your logo/title here
+    if st.button("🏠 Home", key="home_button"):
+        # Clear all session state (except model cache) and rerun app
+        for key in st.session_state.keys():
+            if not key.startswith("cached_resource_"):
+                del st.session_state[key]
+        st.experimental_rerun()
 with header_col2:
-    # Render a unique button, then style via :has CSS selector
-    faq_label = "FAQ"
-    # Assign FAQ button class on the fly
-    btn_class = "faq-custom"
-    if st.session_state.show_faq:
-        # Add highlight class if FAQ is open
-        st.markdown(
-            "<style>.stButton[key='faq_toggle'] button {background: linear-gradient(90deg, #ffc93f 0%, #b58f00 100%) !important;"
-            "color: #fff !important; border:2.5px solid #b58f00 !important; box-shadow: 0 2px 16px #ffe98a99 !important;}</style>",
-            unsafe_allow_html=True,
-        )
-    else:
-        st.markdown(
-            "<style>.stButton[key='faq_toggle'] button {background: linear-gradient(90deg, #FFD700 0%, #FFB300 100%) !important;"
-            "color: #1e3a8a !important; border:none !important;}</style>", unsafe_allow_html=True,
-        )
-    if st.button(faq_label, key="faq_toggle", help="Show or hide FAQ"):
+    st.write("")  # Reserved for header text/logo if you want
+with header_col3:
+    faq_highlight = "faq-opened" if st.session_state.show_faq else ""
+    st.markdown(
+        f"""
+        <style>
+        .stButton > button.faq-btn {{padding-right:25px !important; padding-left:25px !important;}}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    # Render FAQ button with correct state (highlight if open, gold if closed)
+    faq_button_html = f"""
+    <button class="stButton faq-btn {faq_highlight}" onclick="window.parent.postMessage('faq_toggle', '*');return false;">FAQ</button>
+    <script>
+    window.addEventListener("message", (event)=>{
+      if(event.data === "faq_toggle") {{
+        var streamlit_events = window.parent.document.getElementsByTagName('body')[0];
+        if(streamlit_events) {{
+           streamlit_events.setAttribute('data-faq', (streamlit_events.getAttribute('data-faq')==='1')?'0':'1');
+           window.parent.location.reload(); // hack: refresh (since JS not natively connected to python, see below for Streamlit-native)
+        }}
+      }}
+    }});
+    </script>
+    """
+    # Instead, for Streamlit-native: just use st.button but add class
+    st.markdown(
+        f"""
+        <style>
+        div[data-testid="stHorizontalBlock"] > div:first-child button {{
+            }}
+        div[data-testid="stHorizontalBlock"] > div:last-child button {{
+            {"background: linear-gradient(90deg, #ffc93f 0%, #b58f00 100%) !important; color:#fff !important; border:2.5px solid #b58f00 !important;" if st.session_state.show_faq else ""}
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+    if st.button("FAQ", key="faq_toggle", help="Show or hide FAQ"):
         st.session_state.show_faq = not st.session_state.show_faq
 
 # ========== FAQ PANEL ==========
@@ -195,19 +216,25 @@ uploaded_file = st.file_uploader("Upload your meal photo (.png, .jpg, .jpeg)..."
     type=["png", "jpg", "jpeg"], key="main-uploader", help="Image is processed in-memory and never stored."
 )
 
+# ========== MOBILE TIP ==========
+show_mobile_tip = False
+# Use viewport width JS trick; but in Streamlit, best is to always show on show_camera for narrow columns + CSS media query hides on desktop
 if st.session_state.show_camera:
+    show_mobile_tip = True
+
+if show_mobile_tip:
     st.markdown(
         """
-        <div style="background: #f5fbee; border-left:5px solid #ffe03c; border-radius:12px; padding:13px; margin-bottom:8px;">
+        <div class="mobile-tip" style="background: #f5fbee; border-left:5px solid #ffe03c; border-radius:12px; padding:13px; margin-bottom:8px; margin-top:2px;">
             <b>Tip for mobile users:</b><br>
             If the front (selfie) camera opens by default, <b>tap the camera icon/button</b> in the overlay or your browser’s UI to switch to the <b>back camera</b> for best food photos.
         </div>
         """, unsafe_allow_html=True
     )
-    camera_image = st.camera_input("Or capture with webcam")
-else:
-    camera_image = None
 
+camera_image = None
+if st.session_state.show_camera:
+    camera_image = st.camera_input("Or capture with webcam")
 image = None
 if uploaded_file:
     image = Image.open(uploaded_file).convert("RGB")
@@ -232,7 +259,6 @@ if image:
             except Exception as e:
                 st.error(f"Prediction failed: {e}")
         st.info("For best results, use clear/textured images and a single plate or bowl.")
-
 else:
     st.write("""<div style="text-align:center;color:#888;font-size:1.14rem;">
         <strong>No image uploaded yet.</strong><br>Drag and drop, browse, or use the camera above.
