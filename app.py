@@ -106,21 +106,40 @@ with header_col2:
 if st.session_state.show_faq:
     with st.expander("Frequently Asked Questions", expanded=True):
         st.markdown("""
-            **Q: What does this estimate represent?**  
-            AI-based calorie estimate (kcal) from an image. It's an approximation, not a clinical result.
+        <style>
+        .faq-q {
+            font-size: 1.16rem !important;
+            font-weight: 900 !important;
+            color: #18306e !important;
+            margin-bottom: 2px;
+            margin-top: 13px;
+            line-height: 1.3;
+            letter-spacing: 0.2px;
+        }
+        .faq-a {
+            font-size: 1.05rem !important;
+            font-weight: 500 !important;
+            color: #222 !important;
+            margin-bottom: 7px;
+            margin-left: 2px;
+            line-height: 1.45;
+        }
+        </style>
+        <div class="faq-q">Q: What does this estimate represent?</div>
+        <div class="faq-a">AI-based calorie estimate (kcal) from an image. It's an approximation, not a clinical result.</div>
 
-            **Q: How accurate is it?**  
-            Depends on image quality, portion visibility, and food diversity. Best for clearly visible, single meals!
+        <div class="faq-q">Q: How accurate is it?</div>
+        <div class="faq-a">Depends on image quality, portion visibility, and food diversity. Best for clearly visible, single meals!</div>
 
-            **Q: Is my image stored or shared?**  
-            Never. The image is processed *in your session only*; not logged or sent to any third-party.
+        <div class="faq-q">Q: Is my image stored or shared?</div>
+        <div class="faq-a">Never. The image is processed <em>in your session only</em>; not logged or sent to any third-party.</div>
 
-            **Q: Best photo tips?**  
-            Single plate, top-down or 45°, bright/neutral background, avoid occlusion!
+        <div class="faq-q">Q: Best photo tips?</div>
+        <div class="faq-a">Single plate, top-down or 45°, bright/neutral background, avoid occlusion!</div>
 
-            **Q: Multi-item images?**  
-            For accuracy, one meal at a time. Complex plates lower accuracy.
-        """)
+        <div class="faq-q">Q: Multi-item images?</div>
+        <div class="faq-a">For accuracy, one meal at a time. Complex plates lower accuracy.</div>
+        """, unsafe_allow_html=True)
 
 # ========== HERO SECTION ==========
 background_img_url = "https://images.pexels.com/photos/70497/pexels-photo-70497.jpeg?auto=compress&fit=crop&w=1350&q=80"
