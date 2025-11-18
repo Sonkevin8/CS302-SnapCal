@@ -132,3 +132,110 @@ class MultiInputSnapCalCNN(nn.Module):
         output = self.classifier(combined_features)
 
         return output
+
+
+# Custom Neural Network
+
+class MultiInputSnapCalCNN(nn.Module):
+    def __init__(self, return_features=False):
+        super(MultiInputSnapCalCNN, self).__init__()
+
+        self.return_features = return_features
+
+        # Feature extraction for RGB (3 channels)
+        self.features_rgb = nn.Sequential(
+            nn.Conv2d(3, 32, kernel_size=3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+        )
+
+        # Shared for Heat & Depth
+        self.features_mono = nn.Sequential(
+            nn.Conv2d(1, 16, kernel_size=3, padding=1),
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+
+            nn.Conv2d(16, 32, kernel_size=3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+        )
+
+        self.features_rgb_cont = nn.Sequential(
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+
+            nn.Conv2d(128, 256, kernel_size=3, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+        )
+
+        self.features_heat_cont = nn.Sequential(
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+        )
+
+        self.features_depth_cont = nn.Sequential(
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+        )
+
+        total_flattened_features = 256 + 128
+
+        self.classifier = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(total_flattened_features, 256),
+            nn.ReLU(),
+            nn.Dropout(0.4),
+            nn.Linear(256, 64),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(64, 1)
+        )
+
+        self.gap = nn.AdaptiveAvgPool2d((1, 1))
+
+    def forward(self, x_rgb, x_heat):
+        # Extract RGB features
+        f_rgb = self.features_rgb(x_rgb)
+        f_rgb = self.features_rgb_cont(f_rgb)
+        f_rgb = self.gap(f_rgb).view(f_rgb.size(0), -1)
+
+        # Extract gray (heat) features
+        f_heat = self.features_mono(x_heat)
+        f_heat = self.features_heat_cont(f_heat)
+        f_heat = self.gap(f_heat).view(f_heat.size(0), -1)
+
+        # Concatenate RGB + Gray features
+        combined = torch.cat((f_rgb, f_heat), dim=1)
+
+        # 🧩 If used for feature extraction in hybrid model
+        if self.return_features:
+            return combined
+
+        # 🔮 Otherwise, produce calorie prediction directly
+        return self.classifier(combined)
